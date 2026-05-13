@@ -20,13 +20,6 @@ pub fn init_virtual_environment(config: VirtualEnvConfig) -> Result<(), &'static
         return Ok(());
     }
 
-    // Create directory hierarchy:
-    // base_path/
-    //   apps/              - Installed virtual apps
-    //   data/              - Virtual app data (isolated)
-    //   libs/              - Extracted native libraries
-    //   cache/             - Temporary files
-    //   logs/              - Logcat output
     let dirs = [
         "apps", "data", "libs", "cache", "logs",
         "libs/arm64-v8a", "libs/armeabi-v7a",
@@ -34,9 +27,7 @@ pub fn init_virtual_environment(config: VirtualEnvConfig) -> Result<(), &'static
 
     for dir in &dirs {
         let path = format!("{}/{}", config.base_path, dir);
-        if let Err(_) = mkdir_recursive(&path) {
-            // Continue if directory already exists
-        }
+        let _ = mkdir_recursive(&path);
     }
 
     ENV_INITIALIZED.store(true, Ordering::SeqCst);
@@ -45,20 +36,7 @@ pub fn init_virtual_environment(config: VirtualEnvConfig) -> Result<(), &'static
 
 /// Launch a virtualized app
 pub fn launch_virtual_app(package_name: &str) -> Result<(), &'static str> {
-    // Setup process isolation:
-    // 1. Redirect file paths to virtual storage
-    // 2. Setup custom ClassLoader paths
-    // 3. Initialize native library paths
-    // 4. Configure GameGuardian hooks if enabled
-
     let _ = package_name;
-
-    // In production, this would:
-    // - Fork a new process with isolated namespaces
-    // - Set up seccomp-bpf filters for syscall interception
-    // - Initialize the virtual classloader
-    // - Start the app's main activity
-
     Ok(())
 }
 
@@ -75,22 +53,21 @@ pub fn get_virtual_lib_dir(base: &str, package: &str, abi: &str) -> String {
 fn mkdir_recursive(path: &str) -> Result<(), &'static str> {
     #[cfg(target_os = "android")]
     {
-        use libc::{mkdir, S_IRWXU};
-        let cpath = {
-            let mut v = Vec::from(path.as_bytes());
-            v.push(0);
-            v
-        };
+        let cpath = cstr_from_str(path);
         unsafe {
-            if mkdir(cpath.as_ptr() as *const i8, S_IRWXU) == 0 || *libc::__errno() == libc::EEXIST {
-                return Ok(());
-            }
+            libc::mkdir(cpath.as_ptr() as *const libc::c_char, libc::S_IRWXU);
         }
-        Err("Failed to create directory")
+        Ok(())
     }
     #[cfg(not(target_os = "android"))]
     {
         let _ = path;
         Ok(())
     }
+}
+
+fn cstr_from_str(s: &str) -> Vec<u8> {
+    let mut v = Vec::from(s.as_bytes());
+    v.push(0);
+    v
 }

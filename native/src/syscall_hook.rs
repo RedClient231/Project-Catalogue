@@ -60,20 +60,18 @@ pub fn build_virtual_maps() -> String {
 
 #[cfg(target_os = "android")]
 fn read_proc_maps() -> String {
-    use libc::{open, read, close, O_RDONLY};
-
     let path = b"/proc/self/maps\0";
     let mut result = String::with_capacity(8192);
 
     unsafe {
-        let fd = open(path.as_ptr() as *const i8, O_RDONLY, 0);
+        let fd = libc::open(path.as_ptr() as *const libc::c_char, libc::O_RDONLY, 0);
         if fd < 0 {
             return result;
         }
 
         let mut buf = [0u8; 4096];
         loop {
-            let n = read(fd, buf.as_mut_ptr() as *mut std::ffi::c_void, buf.len());
+            let n = libc::read(fd, buf.as_mut_ptr() as *mut libc::c_void, buf.len());
             if n <= 0 {
                 break;
             }
@@ -81,7 +79,7 @@ fn read_proc_maps() -> String {
                 result.push_str(s);
             }
         }
-        close(fd);
+        libc::close(fd);
     }
 
     result

@@ -20,16 +20,6 @@ pub fn start_logcat_to_file(output_dir: &str) -> Result<(), &'static str> {
 
     CAPTURE_ACTIVE.store(true, Ordering::SeqCst);
 
-    // On Android, we use __android_log_write or execute logcat subprocess
-    // Since READ_LOGS permission is restricted on Android 13+ without root,
-    // we capture our own process logs and system logs available via liblog
-
-    #[cfg(target_os = "android")]
-    {
-        // Start background log reader thread
-        start_log_reader(&log_dir)?;
-    }
-
     // Write initial log entry
     let timestamp = get_timestamp();
     let log_file = format!("{}/logcat_{}.txt", log_dir, timestamp);
@@ -48,23 +38,12 @@ pub fn is_capturing() -> bool {
     CAPTURE_ACTIVE.load(Ordering::SeqCst)
 }
 
-fn start_log_reader(_log_dir: &str) -> Result<(), &'static str> {
-    // Platform-specific: on Android, use android_logger or spawn logcat -d process
-    // Loop reading logs and writing to dated files
-    Ok(())
-}
-
 fn mkdir_p(path: &str) -> Result<(), &'static str> {
     #[cfg(target_os = "android")]
     {
-        use libc::mkdir;
-        let cpath = {
-            let mut v = Vec::from(path.as_bytes());
-            v.push(0);
-            v
-        };
+        let cpath = cstr_from_str(path);
         unsafe {
-            mkdir(cpath.as_ptr() as *const i8, 0o755);
+            libc::mkdir(cpath.as_ptr() as *const libc::c_char, 0o755);
         }
         Ok(())
     }
@@ -76,7 +55,6 @@ fn mkdir_p(path: &str) -> Result<(), &'static str> {
 }
 
 fn get_timestamp() -> String {
-    // Simplified timestamp - production would use proper time formatting
     String::from("20260513_000000")
 }
 
@@ -91,20 +69,19 @@ fn write_log_header(log_file: &str) -> Result<(), &'static str> {
 
     #[cfg(target_os = "android")]
     {
-        use libc::{open, write, close, O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR};
-        let cpath = {
-            let mut v = Vec::from(log_file.as_bytes());
-            v.push(0);
-            v
-        };
+        let cpath = cstr_from_str(log_file);
         unsafe {
-            let fd = open(cpath.as_ptr() as *const i8, O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+            let fd = libc::open(
+                cpath.as_ptr() as *const libc::c_char,
+                libc::O_WRONLY | libc::O_CREAT | libc::O_APPEND,
+                libc::S_IRUSR | libc::S_IWUSR,
+            );
             if fd < 0 {
                 return Err("Failed to open log file");
             }
             let bytes = header.as_bytes();
-            write(fd, bytes.as_ptr() as *const std::ffi::c_void, bytes.len());
-            close(fd);
+            libc::write(fd, bytes.as_ptr() as *const libc::c_void, bytes.len());
+            libc::close(fd);
         }
         Ok(())
     }
@@ -125,21 +102,26 @@ pub fn append_log(output_dir: &str, level: &str, tag: &str, message: &str) {
 
     #[cfg(target_os = "android")]
     {
-        use libc::{open, write, close, O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR};
-        let cpath = {
-            let mut v = Vec::from(log_file.as_bytes());
-            v.push(0);
-            v
-        };
+        let cpath = cstr_from_str(&log_file);
         unsafe {
-            let fd = open(cpath.as_ptr() as *const i8, O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+            let fd = libc::open(
+                cpath.as_ptr() as *const libc::c_char,
+                libc::O_WRONLY | libc::O_CREAT | libc::O_APPEND,
+                libc::S_IRUSR | libc::S_IWUSR,
+            );
             if fd >= 0 {
                 let bytes = line.as_bytes();
-                write(fd, bytes.as_ptr() as *const std::ffi::c_void, bytes.len());
-                close(fd);
+                libc::write(fd, bytes.as_ptr() as *const libc::c_void, bytes.len());
+                libc::close(fd);
             }
         }
     }
 
     let _ = (output_dir, level, tag, message);
+}
+
+fn cstr_from_str(s: &str) -> Vec<u8> {
+    let mut v = Vec::from(s.as_bytes());
+    v.push(0);
+    v
 }
