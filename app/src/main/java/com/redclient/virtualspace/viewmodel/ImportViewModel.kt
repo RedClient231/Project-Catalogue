@@ -63,7 +63,7 @@ class ImportViewModel(application: Application) : AndroidViewModel(application) 
                         hasNativeLibs = apkInfo.hasNativeLibs,
                         is64Bit = apkInfo.abiFilters.any { it.contains("64") },
                         is32Bit = apkInfo.abiFilters.any { it.contains("32") || it.contains("v7") },
-                        isGame = apkInfo.isGame(),
+                        isGame = apkInfo.isGame,
                         permissions = apkInfo.permissions.toString()
                     )
 

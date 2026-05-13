@@ -18,6 +18,12 @@ elseif(${ANDROID_ABI} STREQUAL "armeabi-v7a")
     )
 endif()
 
+# Import the pre-built Rust library
+add_library(virtualspace SHARED IMPORTED)
+set_target_properties(virtualspace PROPERTIES
+    IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libvirtualspace.so
+)
+
 # JNI bridge and native hooks
 add_library(vsnative SHARED
     jni_bridge.cpp
@@ -28,6 +34,7 @@ add_library(vsnative SHARED
 )
 
 target_link_libraries(vsnative
+    virtualspace
     log
     android
     dl
