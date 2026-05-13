@@ -13,6 +13,8 @@
 #include <fcntl.h>
 #include <dlfcn.h>
 #include <link.h>
+#include <pthread.h>
+#include <cstdio>
 #include <stdlib.h>
 
 #define LOG_TAG "VSMemory"

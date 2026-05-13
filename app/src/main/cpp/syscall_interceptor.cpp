@@ -9,6 +9,7 @@
 #include <string.h>
 #include <errno.h>
 #include <dlfcn.h>
+#include <cstdio>
 
 #define LOG_TAG "VSSyscall"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
