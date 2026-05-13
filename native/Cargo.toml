@@ -26,8 +26,8 @@ ndk = "0.9"
 ndk-sys = "0.6"
 
 [features]
-default = ["memmap2"]
-debug = ["memmap2"]
+default = []
+debug = []
 
 [profile.release]
 opt-level = 3
