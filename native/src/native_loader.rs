@@ -72,14 +72,9 @@ fn extract_lib(_apk: &str, _entry: &str, _output: &str) -> Result<(), &'static s
 fn set_executable(path: &str) -> Result<(), &'static str> {
     #[cfg(target_os = "android")]
     {
-        use libc::chmod;
-        let cpath = {
-            let mut v = Vec::from(path.as_bytes());
-            v.push(0);
-            v
-        };
+        let cpath = cstr_from_str(path);
         unsafe {
-            if chmod(cpath.as_ptr() as *const i8, 0o755) == 0 {
+            if libc::chmod(cpath.as_ptr() as *const libc::c_char, 0o755) == 0 {
                 return Ok(());
             }
         }
@@ -90,4 +85,10 @@ fn set_executable(path: &str) -> Result<(), &'static str> {
         let _ = path;
         Ok(())
     }
+}
+
+fn cstr_from_str(s: &str) -> Vec<u8> {
+    let mut v = Vec::from(s.as_bytes());
+    v.push(0);
+    v
 }
