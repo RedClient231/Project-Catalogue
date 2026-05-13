@@ -74,7 +74,7 @@ fn write_log_header(log_file: &str) -> Result<(), &'static str> {
             let fd = libc::open(
                 cpath.as_ptr() as *const libc::c_char,
                 libc::O_WRONLY | libc::O_CREAT | libc::O_APPEND,
-                libc::S_IRUSR | libc::S_IWUSR,
+                (libc::S_IRUSR | libc::S_IWUSR) as libc::mode_t,
             );
             if fd < 0 {
                 return Err("Failed to open log file");
@@ -107,7 +107,7 @@ pub fn append_log(output_dir: &str, level: &str, tag: &str, message: &str) {
             let fd = libc::open(
                 cpath.as_ptr() as *const libc::c_char,
                 libc::O_WRONLY | libc::O_CREAT | libc::O_APPEND,
-                libc::S_IRUSR | libc::S_IWUSR,
+                (libc::S_IRUSR | libc::S_IWUSR) as libc::mode_t,
             );
             if fd >= 0 {
                 let bytes = line.as_bytes();
