@@ -1,10 +1,10 @@
 // virtual_env.rs - Virtual environment management
 // Handles isolated storage, process context, package redirection
 
-use alloc::string::{String, ToString};
-use alloc::vec::Vec;
-use alloc::format;
-use core::sync::atomic::{AtomicBool, Ordering};
+use std::string::{String, ToString};
+use std::vec::Vec;
+use std::format;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 static ENV_INITIALIZED: AtomicBool = AtomicBool::new(false);
 

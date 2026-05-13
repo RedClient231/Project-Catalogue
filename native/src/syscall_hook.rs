@@ -1,10 +1,10 @@
 // syscall_hook.rs - Syscall hook management and /proc/self/maps emulation
 // Manages the lifecycle of syscall interception for virtualized I/O
 
-use alloc::string::String;
-use alloc::vec::Vec;
-use alloc::format;
-use core::sync::atomic::{AtomicBool, Ordering};
+use std::string::String;
+use std::vec::Vec;
+use std::format;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 static SYSCALLS_INJECTED: AtomicBool = AtomicBool::new(false);
 static PROC_MAPS_HOOKED: AtomicBool = AtomicBool::new(false);
@@ -73,11 +73,11 @@ fn read_proc_maps() -> String {
 
         let mut buf = [0u8; 4096];
         loop {
-            let n = read(fd, buf.as_mut_ptr() as *mut core::ffi::c_void, buf.len());
+            let n = read(fd, buf.as_mut_ptr() as *mut std::ffi::c_void, buf.len());
             if n <= 0 {
                 break;
             }
-            if let Ok(s) = core::str::from_utf8(&buf[..n as usize]) {
+            if let Ok(s) = std::str::from_utf8(&buf[..n as usize]) {
                 result.push_str(s);
             }
         }

@@ -1,9 +1,9 @@
 // ffi_utils.rs - FFI helper utilities for C string conversion
 
-use alloc::string::String;
-use alloc::vec::Vec;
-use core::ffi::{c_char, CStr};
-use core::ptr;
+use std::string::String;
+use std::vec::Vec;
+use std::ffi::{c_char, CStr};
+use std::ptr;
 
 /// Convert C string pointer to Rust String
 pub unsafe fn cstr_to_string(ptr: *const c_char) -> String {
@@ -18,14 +18,14 @@ pub unsafe fn cstr_to_string(ptr: *const c_char) -> String {
 
 /// Convert Rust String to C string (heap allocated, must be freed with rust_free_string)
 pub fn rust_string_to_c(s: &str) -> *mut c_char {
-    let bytes: Vec<u8> = s.bytes().chain(core::iter::once(0)).collect();
-    let layout = alloc::alloc::Layout::from_size_align(bytes.len(), 1).unwrap();
-    let ptr = unsafe { alloc::alloc::alloc(layout) };
+    let bytes: Vec<u8> = s.bytes().chain(std::iter::once(0)).collect();
+    let layout = std::alloc::Layout::from_size_align(bytes.len(), 1).unwrap();
+    let ptr = unsafe { std::alloc::alloc(layout) };
     if ptr.is_null() {
         return ptr::null_mut();
     }
     unsafe {
-        core::ptr::copy_nonoverlapping(bytes.as_ptr(), ptr, bytes.len());
+        std::ptr::copy_nonoverlapping(bytes.as_ptr(), ptr, bytes.len());
     }
     ptr as *mut c_char
 }
@@ -37,7 +37,7 @@ pub fn free_rust_string(s: *mut c_char) {
     }
     unsafe {
         let len = CStr::from_ptr(s).to_bytes_with_nul().len();
-        let layout = alloc::alloc::Layout::from_size_align(len, 1).unwrap();
-        alloc::alloc::dealloc(s as *mut u8, layout);
+        let layout = std::alloc::Layout::from_size_align(len, 1).unwrap();
+        std::alloc::dealloc(s as *mut u8, layout);
     }
 }

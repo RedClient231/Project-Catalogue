@@ -1,9 +1,9 @@
 // native_loader.rs - Native library extraction and loading (32/64-bit dual ABI)
 // Handles .so extraction, dependency resolution, and dlopen with path redirection
 
-use alloc::string::{String, ToString};
-use alloc::vec::Vec;
-use alloc::format;
+use std::string::{String, ToString};
+use std::vec::Vec;
+use std::format;
 
 /// Detect preferred ABI from APK's lib/ directory
 pub fn get_preferred_lib_dir(apk_path: &str) -> Result<String, &'static str> {

@@ -3,15 +3,10 @@
 // Handles: APK/XAPK parsing, virtual env management, memory hooks, logcat, native lib loading
 
 #![allow(non_snake_case)]
-#![cfg_attr(target_os = "android", no_std)]
 
-extern crate alloc;
-
-use alloc::string::String;
-use alloc::vec::Vec;
-use core::ffi::{c_char, c_void, CStr};
-use core::ptr;
-use core::slice;
+use std::ffi::{c_char, c_void, CStr};
+use std::ptr;
+use std::slice;
 
 mod apk_parser;
 mod virtual_env;
@@ -246,7 +241,7 @@ pub extern "C" fn rust_vmread_same_process(
     size: usize,
 ) -> isize {
     unsafe {
-        core::ptr::copy_nonoverlapping(remote_addr as *const u8, local_buf as *mut u8, size);
+        std::ptr::copy_nonoverlapping(remote_addr as *const u8, local_buf as *mut u8, size);
     }
     size as isize
 }
@@ -258,7 +253,7 @@ pub extern "C" fn rust_vmwrite_same_process(
     size: usize,
 ) -> isize {
     unsafe {
-        core::ptr::copy_nonoverlapping(local_buf as *const u8, remote_addr as *mut u8, size);
+        std::ptr::copy_nonoverlapping(local_buf as *const u8, remote_addr as *mut u8, size);
     }
     size as isize
 }
@@ -281,7 +276,7 @@ pub extern "C" fn rust_vmread_same_process_arm(
     size: u32,
 ) -> i32 {
     unsafe {
-        core::ptr::copy_nonoverlapping(remote_addr as *const u8, local_buf as *mut u8, size as usize);
+        std::ptr::copy_nonoverlapping(remote_addr as *const u8, local_buf as *mut u8, size as usize);
     }
     size as i32
 }
@@ -293,7 +288,7 @@ pub extern "C" fn rust_vmwrite_same_process_arm(
     size: u32,
 ) -> i32 {
     unsafe {
-        core::ptr::copy_nonoverlapping(local_buf as *const u8, remote_addr as *mut u8, size as usize);
+        std::ptr::copy_nonoverlapping(local_buf as *const u8, remote_addr as *mut u8, size as usize);
     }
     size as i32
 }

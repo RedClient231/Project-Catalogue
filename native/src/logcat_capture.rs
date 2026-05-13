@@ -1,10 +1,10 @@
 // logcat_capture.rs - Logcat capture and storage engine
 // Reads Android system logs via liblog and writes to /storage/Download/VirtualSpace/logs/
 
-use alloc::string::{String, ToString};
-use alloc::vec::Vec;
-use alloc::format;
-use core::sync::atomic::{AtomicBool, Ordering};
+use std::string::{String, ToString};
+use std::vec::Vec;
+use std::format;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 static CAPTURE_ACTIVE: AtomicBool = AtomicBool::new(false);
 
@@ -103,7 +103,7 @@ fn write_log_header(log_file: &str) -> Result<(), &'static str> {
                 return Err("Failed to open log file");
             }
             let bytes = header.as_bytes();
-            write(fd, bytes.as_ptr() as *const core::ffi::c_void, bytes.len());
+            write(fd, bytes.as_ptr() as *const std::ffi::c_void, bytes.len());
             close(fd);
         }
         Ok(())
@@ -135,7 +135,7 @@ pub fn append_log(output_dir: &str, level: &str, tag: &str, message: &str) {
             let fd = open(cpath.as_ptr() as *const i8, O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
             if fd >= 0 {
                 let bytes = line.as_bytes();
-                write(fd, bytes.as_ptr() as *const core::ffi::c_void, bytes.len());
+                write(fd, bytes.as_ptr() as *const std::ffi::c_void, bytes.len());
                 close(fd);
             }
         }

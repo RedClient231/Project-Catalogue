@@ -1,8 +1,8 @@
 // memory_hook.rs - Memory hook management for GameGuardian compatibility
 // Tracks memory regions, provides virtual /proc/self/maps, handles rw access
 
-use alloc::vec::Vec;
-use core::sync::atomic::{AtomicBool, Ordering};
+use std::vec::Vec;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 static HOOKS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 static GG_MODE: AtomicBool = AtomicBool::new(false);

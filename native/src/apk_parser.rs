@@ -1,10 +1,10 @@
 // apk_parser.rs - APK/XAPK parsing engine
 // Parses AndroidManifest.xml, extracts resources, handles XAPK OBB bundles
 
-use alloc::string::{String, ToString};
-use alloc::vec::Vec;
-use alloc::format;
-use core::str;
+use std::string::{String, ToString};
+use std::vec::Vec;
+use std::format;
+use std::str;
 use serde::{Deserialize, Serialize};
 
 /// Parsed APK manifest information
@@ -115,8 +115,8 @@ fn read_file_bytes(path: &str) -> Result<Vec<u8>, &'static str> {
     #[cfg(target_os = "android")]
     {
         use libc::{open, read, close, O_RDONLY};
-        use alloc::vec;
-        use core::ffi::c_void;
+        use std::vec;
+        use std::ffi::c_void;
 
         let cpath = cstr_from_str(path);
         let fd = unsafe { open(cpath.as_ptr(), O_RDONLY, 0) };
@@ -354,8 +354,8 @@ fn read_u16_le(bytes: &[u8]) -> u16 {
     u16::from_le_bytes([bytes[0], bytes[1]])
 }
 
-fn cstr_from_str(s: &str) -> alloc::vec::Vec<u8> {
-    let mut v = alloc::vec::Vec::from(s.as_bytes());
+fn cstr_from_str(s: &str) -> std::vec::Vec<u8> {
+    let mut v = std::vec::Vec::from(s.as_bytes());
     v.push(0);
     v
 }
