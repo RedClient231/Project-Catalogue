@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.redclient.virtualspace.engine.VirtualEngine
+import java.io.File
 
 /**
  * Transparent proxy activity that hosts virtualized app execution.

@@ -62,20 +62,21 @@ object ApkParser {
 
     private fun parseViaPackageManager(context: Context, apkFile: File): ParsedApk {
         val pm = context.packageManager
-        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            PackageManager.PackageInfoFlags.of(
-                PackageManager.GET_ACTIVITIES or
-                PackageManager.GET_PERMISSIONS or
-                PackageManager.GET_META_DATA.toLong()
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            PackageManager.GET_ACTIVITIES or PackageManager.GET_PERMISSIONS or PackageManager.GET_META_DATA
-        }
 
         @Suppress("DEPRECATION")
-        val packageInfo = pm.getPackageArchiveInfo(apkFile.absolutePath, flags)
-            ?: return fallbackParse(apkFile)
+        val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            pm.getPackageArchiveInfo(apkFile.absolutePath, PackageManager.PackageInfoFlags.of(
+                PackageManager.GET_ACTIVITIES.toLong() or
+                PackageManager.GET_PERMISSIONS.toLong() or
+                PackageManager.GET_META_DATA.toLong()
+            ))
+        } else {
+            pm.getPackageArchiveInfo(apkFile.absolutePath,
+                PackageManager.GET_ACTIVITIES or
+                PackageManager.GET_PERMISSIONS or
+                PackageManager.GET_META_DATA
+            )
+        } ?: return fallbackParse(apkFile)
 
         val appInfo = packageInfo.applicationInfo
         val label = appInfo?.let { pm.getApplicationLabel(it).toString() } ?: apkFile.name
