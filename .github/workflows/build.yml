@@ -34,7 +34,7 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           cmdline-tools-version: "12266719"
-          packages: "ndk;27.0.12077973 cmake;3.28.0"
+          packages: "ndk;27.0.12077973 cmake;3.22.1"
 
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
