@@ -37,9 +37,8 @@ jobs:
           packages: "ndk;27.0.12077973 cmake;3.28.0"
 
       - name: Setup Rust toolchain
-        uses: dtolnay/rust-action@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
           targets: aarch64-linux-android,armv7-linux-androideabi
 
       - name: Install NDK toolchain
